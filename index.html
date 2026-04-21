@@ -66,6 +66,30 @@ body { background: var(--black); color: var(--white); font-family: var(--body); 
 .nav-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .topbar-date { margin-left: auto; display: flex; align-items: center; font-family: var(--mono); font-size: 10px; color: var(--muted2); letter-spacing: 0.08em; }
 
+/* ── MOBILE BOTTOM TAB BAR ── */
+.mobile-tabs {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: rgba(14,14,14,0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border2);
+  padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+}
+.mobile-tabs-inner {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+}
+.mob-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; padding: 4px 2px;
+  border: none; background: transparent; color: var(--muted2);
+  cursor: pointer; transition: color 0.15s;
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.04em; text-transform: uppercase;
+  line-height: 1;
+}
+.mob-btn.active { color: var(--accent); }
+.mob-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
 /* ── PANELS ── */
 .panel { display: none; padding: 40px; min-height: calc(100vh - 56px); }
 .panel.active { display: block; }
@@ -269,15 +293,24 @@ body { background: var(--black); color: var(--white); font-family: var(--body); 
 .blink { animation: blink 1.6s ease-in-out infinite; }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 900px) {
-  .topbar { padding: 0 16px; }
-  .panel { padding: 24px 16px; }
+@media (max-width: 768px) {
+  .topbar { padding: 0 16px; height: 48px; }
+  .topbar-nav { display: none; }
+  .topbar-date { display: none; }
+  .topbar-brand { border-right: none; padding-right: 0; margin-right: 0; }
+  .mobile-tabs { display: block; }
+  .panel { padding: 20px 16px 100px; }
   .overview-grid { grid-template-columns: 1fr; }
   .content-grid { grid-template-columns: 1fr; }
-  .action-item { grid-template-columns: 28px 1fr; }
+  .action-item { grid-template-columns: 28px 1fr auto; }
   .ai-owner, .ai-cat { display: none; }
-  .cal-item { grid-template-columns: 60px 1fr auto; }
-  .hero-title { font-size: 48px; }
+  .cal-item { grid-template-columns: 60px 1fr; }
+  .cal-tag { display: none; }
+  .hero-title { font-size: 44px; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .overview-hero { padding: 28px 0 24px; }
+  .team-grid { grid-template-columns: 1fr; }
+  .clipping-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -313,6 +346,36 @@ body { background: var(--black); color: var(--white); font-family: var(--body); 
   </div>
   <div class="topbar-date" id="topbar-date"></div>
 </nav>
+
+<!-- MOBILE BOTTOM TAB BAR -->
+<div class="mobile-tabs" id="mobile-tabs">
+  <div class="mobile-tabs-inner">
+    <button class="mob-btn active" onclick="showPanelMob('overview', this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Overview
+    </button>
+    <button class="mob-btn" onclick="showPanelMob('deals', this)">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Deals
+    </button>
+    <button class="mob-btn" onclick="showPanelMob('calendar', this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendar
+    </button>
+    <button class="mob-btn" onclick="showPanelMob('content', this)">
+      <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      Content
+    </button>
+    <button class="mob-btn" onclick="showPanelMob('festivals', this)">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Festivals
+    </button>
+    <button class="mob-btn" onclick="showPanelMob('team', this)">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Team
+    </button>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════
      TAB 1 — OVERVIEW
@@ -1224,12 +1287,33 @@ const d = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day
   if (el) el.textContent = (id === 'topbar-date' ? '' : 'Updated ') + d;
 });
 
-// Tab switching
+// Tab switching — desktop
 function showPanel(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mob-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   btn.classList.add('active');
+  // sync mobile tab
+  const mobBtns = document.querySelectorAll('.mob-btn');
+  const panels = ['overview','deals','calendar','content','festivals','team'];
+  const idx = panels.indexOf(id);
+  if (idx > -1 && mobBtns[idx]) mobBtns[idx].classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// Tab switching — mobile bottom bar
+function showPanelMob(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.mob-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  // sync desktop nav
+  const panels = ['overview','deals','calendar','content','festivals','team'];
+  const idx = panels.indexOf(id);
+  const navBtns = document.querySelectorAll('.nav-btn');
+  if (idx > -1 && navBtns[idx]) navBtns[idx].classList.add('active');
   window.scrollTo(0, 0);
 }
 
